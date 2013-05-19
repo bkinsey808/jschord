@@ -1,0 +1,36 @@
+var Note = Class({
+  init: function(noteString) {
+    this.octave = this.getOctaveFromNoteString(noteString);
+    this.noteType = this.getNoteTypeFromNoteString(noteString);
+  },
+  getNoteTypeFromNoteString: function(noteString) {
+    if (noteString == parseInt(noteString) || noteString.match(/^\d+$/)) {
+      noteString == parseInt(noteString) % 12;
+    } else {   
+      var matches = noteString.match(/([CDEFGb]+)(\d+)/);
+      var noteTypeString = noteString;
+      if (matches) {
+        noteTypeString = matches[1];
+      }
+    }
+    return new NoteType(noteString);
+  },
+  getOctaveFromNoteString: function(noteString) {
+    var octave = 0;
+    if (noteString == parseInt(noteString) || noteString.match(/^\d+$/)) {
+      octave = Math.floor(parseInt(noteString) / 12);
+    } else {
+      var matches = noteString.match(/([ABCDEFGb#]+)(\d+)/);
+      if (matches) {
+        octave = parseInt(matches[2]);
+      }
+    }
+    return octave;
+  },
+  getString: function() {
+    return this.noteType.getString() + (this.octave ? this.octave : '') ;
+  },
+  getValue: function() {
+    return parseInt(this.noteType.getValue()) + parseInt(this.octave) * 12;
+  }
+});
