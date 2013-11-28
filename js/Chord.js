@@ -22,7 +22,10 @@ var Chord = Class({
     return valueArray;
   },
 
-  getString: function() {
+  getString: function(primary) {
+    if (primary) {
+      return this.getScaleString(true);
+    }
     var noteStringArray = [];
     for (var i = 0; i < this.valueArray.length; i++) {
       var value = this.valueArray[i];
@@ -33,10 +36,10 @@ var Chord = Class({
     return noteStringArray.join(' ');
   },
 
-  getScaleString: function() {
+  getScaleString: function(primary) {
     var string = this.getString();
     var scale = new Scale(string);
-    return scale.getString();
+    return scale.getString(primary);
   },
 
   getValueArray: function() {

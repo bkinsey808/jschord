@@ -15,6 +15,7 @@ var ScaleType = Class({
     } else {
       this.valueArray = argument;
     }
+    var noteNum = this.valueArray[0];
     var mapFunction = function(value) {
       return value % 12;
     }
@@ -33,11 +34,11 @@ var ScaleType = Class({
   getValueFromSplitString: function(splitString) {
     var matches = splitString.match(/([ABCDEFGb#]+)(\d*)/);
     var value;
-    if (matches[1]) {
+    if (matches && matches[1]) {
       var noteType = new NoteType(matches[1]);
       return noteType.getValue();
     }
-    var scaleDegree = new ScaleDegreeType(scaleDegreeTypeString);
+    var scaleDegree = new ScaleDegreeType(splitString);
     return scaleDegree.getValue() % 12;
   },
 
@@ -85,9 +86,6 @@ var ScaleType = Class({
       console.log(n 
         + ": (" + inversionScaleType.getString() + ') ' 
         + inversionScaleType.getScaleDegreeTypeString());
-      // not cross browser!
-      for (var key in this.scaleTypeData) {
-      }
     }
   },
 
@@ -129,6 +127,23 @@ var ScaleType = Class({
 
   getValueArray: function() {
     return this.valueArray;
+  },
+
+  isPrimary: function(checkArray) {
+    if (!checkArray) {
+      checkArray = this.valueArray;
+    }
+    // not cross browser!
+    for (var key in this.scaleTypeData) {
+      var scaleTypeDataItem = this.scaleTypeData[key];
+      if (! scaleTypeDataItem.primary) continue;
+      var checkScaleDegreeTypeString = scaleTypeDataItem.scaleDegreeTypeString;
+      var array = this.getArrayFromScaleDegreeTypeString(checkScaleDegreeTypeString);
+      if (array.toString() == checkArray.toString()) {
+        return true;
+      }
+    }
+    return false;
   },
 
   scaleTypeData : {

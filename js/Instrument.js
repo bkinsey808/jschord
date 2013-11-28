@@ -10,8 +10,10 @@ var Instrument = Class({
       this.stringArray.push(string);
       this.lastFret = (string.lastFret > this.lastFret) ? string.lastFret : this.lastFret;
     }
+    this.setValueArray();
   },
-  getValueArray: function() {
+
+  setValueArray: function() {
     var valueArray = [];
     for (var i = 0; i < this.stringArray.length; i++) {
       var string = this.stringArray[i];
@@ -21,9 +23,27 @@ var Instrument = Class({
       }
       valueArray.push(stringValueArray);
     }    
-    return valueArray;
+    this.valueArray = valueArray;
   },
+
+  getValueArray: function() {
+    return this.valueArray;
+  },
+
   getString: function() {
     return this.scaleString;
+  },
+
+  getChordFromPosition: function(position) {
+    var positionArray = position.split(' ');
+    var noteNumArray = [];
+    for (var i = 0; i < positionArray.length; i++) {
+      var fret = positionArray[i];
+      if (positionArray == 'x') continue;
+      var fretNum = parseInt(fret);
+      noteNumArray.push(this.valueArray[i][fretNum]);
+    }
+    var chord = new Chord(noteNumArray);
+    return chord;
   }
 });
