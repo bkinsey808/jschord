@@ -9,5 +9,10 @@ AppMixin = {
       c.push(parseInt(key));
     }
     return c;
-  }
+  },
+
+    removeArrayAtIndex: function (array, index) {
+	return array.slice(0,index).concat(array.slice(index + 1));
+    }
+
 }

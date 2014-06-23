@@ -25,9 +25,12 @@ var Note = Class({
     return octave;
   },
 
-  getString: function() {
-    return this.noteType.getString() + (this.octave ? this.octave : '') ;
-  },
+    getString: function(mod) {
+	if (mod) {
+	    return this.noteType.getString();
+	}
+	return this.noteType.getString() + (this.octave ? this.octave : '') ;
+    },
 
   getValue: function() {
     return parseInt(this.noteType.getValue()) + parseInt(this.octave) * 12;

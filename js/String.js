@@ -16,5 +16,23 @@ var String = Class({
   },
   getValueArray: function() {
     return this.valueArray;
-  }
+  },
+
+    getOpenNote: function() {
+	return this.note;
+    },
+
+    getMaxFret: function() {
+	return this.lastFret;
+    },
+
+    getPositionAtFret: function(fretNum) {
+	if (fretNum > this.lastFret) {
+	    return null;
+	}
+	if (fretNum < this.startFret) {
+	    return null;
+	}
+	return this.valueArray[fretNum];
+    }
 });

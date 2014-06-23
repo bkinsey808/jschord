@@ -1,46 +1,79 @@
 var ScaleType = Class({
 
-  include: AppMixin,
+    include: AppMixin,
 
-  init: function(argument) {
-    if (!(argument instanceof Array)) {
-      var scaleDegreeTypeArray = argument.split(' ');
-      this.valueArray = [];
-      var self = this;
-      var mapFunction = function(splitString) {
-        var value = self.getValueFromSplitString(splitString);
-        self.valueArray.push(value);
-      }
-      scaleDegreeTypeArray.map(mapFunction);      
-    } else {
-      this.valueArray = argument;
-    }
-    var noteNum = this.valueArray[0];
-    var mapFunction = function(value) {
-      return value % 12;
-    }
-    this.valueArray = this.valueArray.map(mapFunction);     
-    this.valueArray = this.getUniqueArray(this.valueArray);
-    this.valueArray.sort(function(a,b){return a-b});
-    var firstValue = this.valueArray[0];
-    if (this.valueArray.length > 0 && firstValue > 0) {
-      var diff = firstValue;
-      for (var i = 0; i < this.valueArray.length; i++) {
-        this.valueArray[i] -= diff;
-      }
-    }
-  },
+    init: function(argument) {
+	if (typeof argument === 'undefined') {
+	    this.valueArray = [];
+	    perfectUnison = true;
+	} else if (!(argument instanceof Array)) {
+	    if (this.scaleTypeData[argument]) {
+		argument = this.scaleTypeData[argument].scaleDegreeTypeString;
+	    }
+	    this.valueArray = [];
+	    var self = this;
+	    if (!argument.match(/^[ABCDEFG]b?#?/)) {
+		argument = '1 ' + argument;
+	    }
+	    var scaleDegreeTypeArray = argument.split(' ');
+	    var mapFunction = function(splitString) {
+		var value = self.getValueFromSplitString(splitString, true);
+		if (!isNaN(value)) {
+		    self.valueArray.push(value);
+		}
+	    }
+	    scaleDegreeTypeArray.map(mapFunction);      
+	    if (this.valueArray[0] > 0) {
+		this.adjustValueArrayForInitialNote();
+	    }
+	} else {
+	    this.valueArray = argument;
+	}
+	var noteNum = this.valueArray[0];
+	var mapFunction = function(value) {
+	    return value % 12;
+	}
+	this.valueArray = this.valueArray.map(mapFunction);     
+	this.valueArray = this.getUniqueArray(this.valueArray);
+	this.valueArray.sort(function(a,b){return a-b});
+	var firstValue = this.valueArray[0];
+	if (this.valueArray.length > 0 && firstValue > 0) {
+	    var diff = firstValue;
+	    for (var i = 0; i < this.valueArray.length; i++) {
+		this.valueArray[i] -= diff;
+	    }
+	}
+    },
 
-  getValueFromSplitString: function(splitString) {
-    var matches = splitString.match(/([ABCDEFGb#]+)(\d*)/);
-    var value;
-    if (matches && matches[1]) {
-      var noteType = new NoteType(matches[1]);
-      return noteType.getValue();
-    }
-    var scaleDegree = new ScaleDegreeType(splitString);
-    return scaleDegree.getValue() % 12;
-  },
+    isPerfectUnison: function() {
+	if (!this.valueArray) {
+	    return true;
+	}
+	return false;
+    },
+
+    adjustValueArrayForInitialNote: function() {
+	var initialNoteValue = this.valueArray[0];
+	for (var i = 0; i < this.valueArray.length; i++) {
+	    var value = this.valueArray[i];
+	    var newValue = value - initialNoteValue;
+	    if (newValue < 0) {
+		newValue += 12;
+	    }
+	    this.valueArray[i] = newValue;
+	}
+    },
+
+    getValueFromSplitString: function(splitString) {
+	var matches = splitString.match(/([ABCDEFG]b?#?)(\d*)/);
+	var value;
+	if (matches && matches[1]) {
+	    var noteType = new NoteType(matches[1]);
+	    return noteType.getValue();
+	}
+	var scaleDegree = new ScaleDegreeType(splitString);
+	return scaleDegree.getValue() % 12;
+    },
 
   getScaleDegreeTypeString: function(array) {
     if (! array) {
@@ -57,6 +90,9 @@ var ScaleType = Class({
   },
 
   getString: function(primary) {
+      if (this.isPerfectUnison()) {
+	  return "PU";
+      }
     if (!primary) {
       var scaleDegreeTypeString = this.getScaleDegreeTypeString();
       var string = this.getScaleTypeStringFromScaleDegreeTypeString(scaleDegreeTypeString);
@@ -80,13 +116,18 @@ var ScaleType = Class({
     return scaleDegreeTypeString;
   },
 
-  getModes: function() {
+    getModes: function() {
+	if (!this.valueArray) {
+	    console.log('no array');
+	    return;
+	}
     for (var n = 0; n < this.valueArray.length; n++) {
       var inversionScaleType = new ScaleType(this.getNthInversion(n, this.valueArray));
       console.log(n 
         + ": (" + inversionScaleType.getString() + ') ' 
         + inversionScaleType.getScaleDegreeTypeString());
     }
+      
   },
 
   getArrayFromScaleDegreeTypeString: function(scaleDegreeTypeString) {
@@ -129,37 +170,72 @@ var ScaleType = Class({
     return this.valueArray;
   },
 
-  isPrimary: function(checkArray) {
-    if (!checkArray) {
-      checkArray = this.valueArray;
-    }
-    // not cross browser!
-    for (var key in this.scaleTypeData) {
-      var scaleTypeDataItem = this.scaleTypeData[key];
-      if (! scaleTypeDataItem.primary) continue;
-      var checkScaleDegreeTypeString = scaleTypeDataItem.scaleDegreeTypeString;
-      var array = this.getArrayFromScaleDegreeTypeString(checkScaleDegreeTypeString);
-      if (array.toString() == checkArray.toString()) {
-        return true;
-      }
-    }
-    return false;
-  },
+    isPrimary: function(checkArray) {
+	if (!checkArray) {
+	    checkArray = this.valueArray;
+	}
+	var scaleDegreeTypeString = this.getScaleDegreeTypeString(checkArray);
+	// not cross browser!
+	for (var key in this.scaleTypeData) {
+	    var scaleTypeDataItem = this.scaleTypeData[key];
+	    
+	    if (scaleTypeDataItem.scaleDegreeTypeString == scaleDegreeTypeString) {
+		if (scaleTypeDataItem.primary) {
+		    return true;
+		}
+	    }
+	}
+	return false;
+    },
+
+    getScaleTypesBySize: function(size) {
+	var data = {};
+        for (var key in this.scaleTypeData) {
+	    var scaleTypeDataItem = this.scaleTypeData[key];
+	    var scaleDegreeTypeString = scaleTypeDataItem.scaleDegreeTypeString;
+	    var splitArray = scaleDegreeTypeString.split(' ');
+	    if (splitArray.length == 4) {
+		var scaleType = new ScaleType(scaleDegreeTypeString);
+		var valueArray = scaleType.getValueArray();
+		data[key] = {};
+		data[key].scaleDegreeTypeString = scaleDegreeTypeString;
+		data[key].valueArray = valueArray;
+	    }
+	}
+	return data;
+    },
+
+    getScales: function() {
+    },
+
+    getScaleTypeData: function() {
+	var data = {};
+        for (var key in this.scaleTypeData) {
+	    var scaleTypeDataItem = this.scaleTypeData[key];
+	    data[key] = {};
+	    data[key].scaleDegreeTypeString = scaleTypeDataItem.scaleDegreeTypeString;
+//	    console.log(key + ': ' + scaleTypeDataItem.scaleDegreeTypeString);
+	   var scaleType = new ScaleType(scaleTypeDataItem.scaleDegreeTypeString);
+	    data[key].primaryValueArray = scaleType.getValueArray();
+	    data[key].modes = scaleType.getModes();
+	}
+	return data;
+    },
 
   scaleTypeData : {
-    "PU":   { scaleDegreeTypeString: "",                    names: [ "Perfect Unison" ]},
+    "PU":   { scaleDegreeTypeString: "",    primary: true, names: [ "Perfect Unison" ]},
 
-    "-2":   { scaleDegreeTypeString: "b2",                  names: [ "Minor Second" ]}, 
-    "M2":   { scaleDegreeTypeString: "2",    primary: true, names: [ "Major Second" ]}, 
-    "-3":   { scaleDegreeTypeString: "b3",   primary: true, names: [ "Minor Third" ]}, 
-    "3":    { scaleDegreeTypeString: "3",    primary: true, names: [ "Major Third" ]}, 
+    "d2":   { scaleDegreeTypeString: "b2",                  names: [ "Minor Second" ]}, 
+    "a2":   { scaleDegreeTypeString: "2",    primary: true, names: [ "Major Second" ]}, 
+    "d3":   { scaleDegreeTypeString: "b3",   primary: true, names: [ "Minor Third" ]}, 
+    "a3":   { scaleDegreeTypeString: "3",    primary: true, names: [ "Major Third" ]}, 
     "P4":   { scaleDegreeTypeString: "4",                   names: [ "Perfect Fourth" ]}, 
-    "T":    { scaleDegreeTypeString: "T",    primary: true, names: [ "Tritone" ]}, 
+    "T":    { scaleDegreeTypeString: "b5",   primary: true, names: [ "Tritone" ]}, 
     "P5":   { scaleDegreeTypeString: "5",    primary: true, names: [ "Perfect Fifth" ]}, 
-    "-6":   { scaleDegreeTypeString: "b6",                  names: [ "Minor Sixth" ]}, 
-    "6":    { scaleDegreeTypeString: "6",                   names: [ "Major Sixth" ]}, 
-    "-7":   { scaleDegreeTypeString: "b7",                  names: [ "Minor Seventh" ]}, 
-    "7":    { scaleDegreeTypeString: "7",    primary: true, names: [ "Major Seventh" ]},
+    "d6":   { scaleDegreeTypeString: "b6",                  names: [ "Minor Sixth" ]}, 
+    "a6":   { scaleDegreeTypeString: "6",                   names: [ "Major Sixth" ]}, 
+    "d7":   { scaleDegreeTypeString: "b7",                  names: [ "Minor Seventh" ]}, 
+    "a7":   { scaleDegreeTypeString: "7",    primary: true, names: [ "Major Seventh" ]},
 
     "M":    { scaleDegreeTypeString: "3 5",  primary: true, names: [ "Minor Chord" ]},
     "-":    { scaleDegreeTypeString: "b3 5", primary: true, names: [ "Major Chord" ]},
@@ -175,17 +251,17 @@ var ScaleType = Class({
    "ROng":  { scaleDegreeTypeString: "b5 5", primary: true, names: ["Raga Ongkari", "Sharp Eleven Chord"]},
    "7om3":  { scaleDegreeTypeString: "5 b7", primary: true, names: ["Seven Omit Three", "Dominant Seventh Incomplete"]},
 
-   "2":  { scaleDegreeTypeString: "2 3 5", primary: true, names: ["Two", "Eskimo Tetratonic", "Add Two", "Sus Two Add Three", "Add Nine Omit Three"]},
+   "2C":  { scaleDegreeTypeString: "2 3 5", primary: true, names: ["Two", "Eskimo Tetratonic", "Add Two", "Sus Two Add Three", "Add Nine Omit Three"]},
    "GP":  { scaleDegreeTypeString: "2 4 5", primary: false, names: ["Genus Primum", "Sus Two Four"]},
    "RBha":  { scaleDegreeTypeString: "2 4 6", primary: false, names: ["Raga Bhavani"]},
    "7sus2":  { scaleDegreeTypeString: "2 5 b7", primary: false, names: ["Seventh Sus Two"]},
    "-2":  { scaleDegreeTypeString: "2 b3 5", primary: true, names: ["Minor Two", "Minor Add Nine"]},
    "WTet":  { scaleDegreeTypeString: "2 b3 b7", primary: true, names: ["Warao Tetratonic"]},
    "M6":  { scaleDegreeTypeString: "2 b5 b6", primary: false, names: ["Messiaen Six"]},
-   "4":  { scaleDegreeTypeString: "3 4 5", primary: true, names: ["Four", "Add 4"]},
-   "6":  { scaleDegreeTypeString: "3 5 6", primary: false, names: ["Six Chord", "German Six"]},
+   "4C":  { scaleDegreeTypeString: "3 4 5", primary: true, names: ["Four", "Add 4"]},
+   "6C":  { scaleDegreeTypeString: "3 5 6", primary: false, names: ["Six Chord", "German Six"]},
    "M7":  { scaleDegreeTypeString: "3 5 7", primary: true, names: ["Major Seven"]},
-   "7":  { scaleDegreeTypeString: "3 5 b7", primary: true, names: ["Seven", "Raga Mahathi", "Antara Kaishiaki"]},
+   "7C":  { scaleDegreeTypeString: "3 5 b7", primary: true, names: ["Seven", "Raga Mahathi", "Antara Kaishiaki"]},
    "RNig":  { scaleDegreeTypeString: "3 b5 7", primary: true, names: ["Raga Nigamagamini", "Major Seven Flat Five"]},
    "7b5":  { scaleDegreeTypeString: "3 b5 b7", primary: true, names: ["Seven Flat Five", "Messiaen Truncated Mode 6 Inv."]},
    "+7":  { scaleDegreeTypeString: "3 b6 b7", primary: true, names: ["Aug Seven", "Seven Sharp Five Chord"]},
@@ -204,7 +280,7 @@ var ScaleType = Class({
 
    "MPent":  { scaleDegreeTypeString: "2 3 5 6", primary: true, names: ["Major Pentatonic", "Six Nine Chord", "Mongolian", "Diatonic", " Chinese 1", "Ghana Pentatonic", "Ryosen", "Yona Nuki Major", "Man Jue", "Gong", "Raga Bhopali", "Bhup", "Mohanam", "Deskar", "Bilahari", "Kokila", "Jait Kalyan", "Peruvian Pentatonic One"]},
    "M9":  { scaleDegreeTypeString: "2 3 5 7", primary: true, names: ["Major Nine", "Raga Hamsadhvani", "Raga Hansadhvani"]},
-   "9":  { scaleDegreeTypeString: "2 3 5 b7", primary: true, names: ["Nine", "Dominant Pentatonic"]},
+   "9C":  { scaleDegreeTypeString: "2 3 5 b7", primary: true, names: ["Nine", "Dominant Pentatonic"]},
    "Kung":  { scaleDegreeTypeString: "2 3 b5 6", primary: false, names: ["Kung", "Six Nine Flat Five"]},
    "RKumarD":  { scaleDegreeTypeString: "2 3 b5 7", primary: true, names: ["Raga Kumardaki", "Major Nine Flat Five", "Kumudki"]},
    "9b5":  { scaleDegreeTypeString: "2 3 b5 b7", primary: true, names: ["Nine Flat Five"]},

@@ -275,7 +275,7 @@ $bkc.get_notes_from_sci = function(sci) {
   var notes_array = [];
   notes_array[0] = sci_parts[0];
   var scti = sci_parts[1];
-  var scid = $bkc.get_scid_from_scit[
+//    var scid = $bkc.get_scid_from_scit[];
 
   return notes_array.join(' ');  
 };

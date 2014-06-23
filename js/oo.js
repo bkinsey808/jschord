@@ -1,5 +1,8 @@
-var instrument = new Instrument('G0,12 C0,12 E0,12 A0,12');
-console.log(instrument.getValueArray());
+var ukulele = new Instrument('G0,12 C0,12 E0,12 A0,12');
+
+//var scaleType = new ScaleType();
+//console.log(scaleType.getScaleTypeData());
+//console.log(instrument.getValueArray());
 
 //var note = new Note(14);
 //console.log(note.getString());
@@ -48,7 +51,69 @@ console.log(instrument.getValueArray());
 //console.log(chord.getScaleString()); 
 
 //console.log(instrument.getValueArray());
-var chord = new Chord(instrument.getChordFromPosition('2 2 2 0').getString());
-console.log(chord.getString(true));
+
+
 //scale = new Scale(chord.getString(true));
 //console.log(scale.getString(true));
+
+//var scaleType = new ScaleType();
+//console.log(scaleType.getScaleTypesBySize(5));
+
+//var scale = new Scale("C Eb G A Bb" /*C b3 5 6 b7"*/);
+//console.log(scale.getString());
+//console.log(scale.getValueArray());
+//console.log(scale.getNoteString());
+
+//var scale = new Scale("G C E A");
+//console.log(scale.getString(true));
+//console.log(scale.getValueArray(true));;
+//console.log(scale.getNoteString());
+
+
+//var scale = new Scale("A B C D E F G");
+//console.log(scale.getString());
+//console.log(scale.getChildrenOfSize(3, true, true));
+
+/*var inversions = scale.getInversions();
+for (var i = 0; i < inversions.length; i++) {
+    var scale = inversions[i];
+    
+    console.log(scale.getString() + ( scale.isPrimary() ? ' primary' : '') +':');
+    console.log(scale.getScaleDegreeString(true));
+}
+
+*/
+
+var scale = new Scale("C D E F G A B");
+var ukulele = new Instrument('G0,12 C0,12 E0,12 A0,12');
+
+var chordsByPosition = ukulele.buildChordDatabase(5);
+console.log(chordsByPosition);
+
+//var chord = ukulele.getChordFromPosition('1 x 4 x');
+//console.log(chord.getString(true));
+
+
+//var scale = new Scale("Bb PU", true);
+//console.log(scale.getString());
+
+/*
+var definedPositions = {};
+var positions = ukulele.getPositionsAtFret(2, 5);
+for (var i = 0; i < positions.length; i++) {
+    var position = positions[i];
+    var chord = ukulele.getChordFromPosition(position);
+    definedPositions[position] = chord.getString(true);
+}
+console.log(definedPositions);
+*/
+
+//var scale = new Scale("G C E A");
+//scale.getPositionsFromInstrument(ukulele);
+
+//var chord = new Chord(ukulele.getChordFromPosition('2 2 2 0').getString());
+//console.log(chord.getString());
+//var scaleChord = new ScaleChord(chord, scale);
+//console.log(scaleChord.getString());
+
+//console.log(scale.getChildrenOfSize(3, true, true));

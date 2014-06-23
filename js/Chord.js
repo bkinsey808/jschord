@@ -38,11 +38,58 @@ var Chord = Class({
 
   getScaleString: function(primary) {
     var string = this.getString();
-    var scale = new Scale(string);
+      var scale = new Scale(string, primary);
     return scale.getString(primary);
   },
+
+    getScale: function(primary) {
+	var string = this.getString(primary);
+	var scale = new Scale(string);
+	return scale;
+    },
+
+    getScaleType: function(primary) {
+	var string = this.getString();
+	var scale = new Scale(string, primary);
+	var scaleType = scale.getScaleType(primary);
+	return scaleType;
+    },
+
+    getScaleTypeString: function(primary) {
+	var string = this.getString(primary);
+	var scale = new Scale(string);
+	var scaleType = scale.getScaleType();
+	var scaleTypeString = scaleType.getString();
+	return scaleTypeString;
+    },
+
+    getNote: function() {
+	var noteValue = this.valueArray[0];
+
+	return new Note(noteValue);
+    },
 
   getValueArray: function() {
     return this.valueArray;
   }
 });
+
+/*
+
+
+
+ 11 
+1  1
+    11
+   
+ 
+
+  22
+22  2
+     2
+    
+
+
+
+
+*/
