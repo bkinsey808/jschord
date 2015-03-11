@@ -179,9 +179,10 @@ mf: sf+mf sf sf sf
 		    if (positionAt === 0) {
 			numOpen++;
 		    }
-		    positionData.numMuted = numMuted;
-		    positionData.numOpen = numOpen;
 		}
+		positionData.numMuted = numMuted;
+		positionData.numOpen = numOpen;
+		positionData.chordSpelling = chord.getSpelling(true);
 		this.db.push(positionData);
 	    }
 	}

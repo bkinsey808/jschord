@@ -12,7 +12,7 @@ $.widget('bk.scaleFretboardTool', {
         scaleToolWidth = width / 2;
 	fretboardToolHeight = height - scaleToolHeight;	
 	$bk.scaleToolElement = $('<div>')
-	$bk.chordDatabase = $('<div>')
+	$bk.chordDatabaseElement = $('<div>')
 	$bk.fretboardToolElement = $('<div>')
 	var self = this;
 	setTimeout(function() {
@@ -23,7 +23,7 @@ $.widget('bk.scaleFretboardTool', {
 		.scaleTool();
 	}, 0);
 	setTimeout(function() {
-	    $bk.chordDatabase
+	    $bk.chordDatabaseElement
 		.css('float', 'right')
 		.height(scaleToolHeight)
 		.width(scaleToolWidth)
@@ -35,12 +35,19 @@ $.widget('bk.scaleFretboardTool', {
 		.width(width)
 		.fretboardTool();
 	}, 0);
-	this.element.append([$bk.scaleToolElement, $bk.chordDatabase, $bk.fretboardToolElement]);
+	this.element.append([$bk.scaleToolElement, $bk.chordDatabaseElement, $bk.fretboardToolElement]);
 
     },
     
     redraw: function() {
-	this.scaleToolElement.scaleTool('redraw');
-	this.fretboardToolElement.fretboardTool('redraw');
+	setTimeout(function() {
+	    $bk.scaleToolElement.scaleTool('redraw');
+	}, 0);
+	setTimeout(function() {
+	    $bk.fretboardToolElement.fretboardTool('redraw');
+	}, 0);
+	setTimeout(function() {
+	    $bk.chordDatabaseElement.chordDatabase('redraw');
+	}, 0);
     }
 });

@@ -66,6 +66,13 @@ var Chord = Class({
 	return scaleTypeString;
     },
 
+    getSpelling: function(primary) {
+	var string = this.getString(primary);
+	var scale = new Scale(string);
+	var scaleType = scale.getScaleType();
+	return scaleType.getScaleDegreeTypeString();
+    },
+
     getScaleNoteString: function(primary) {
 	var string = this.getString(primary);
 	//console.log(string);

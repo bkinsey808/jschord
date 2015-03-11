@@ -51,6 +51,12 @@ $.widget('bk.chordDatabase', {
 		title: 'Scale Type of Chord',
 		code:  'scaleTypeName',
 		width: 150
+	    },
+	    {
+		label: 'CSpell',
+		title: 'Spelling of Chord',
+		code:  'chordSpelling',
+		width: 60
 	    }		
 	];
 	for (var s = 1; s <= numStrings; s++) {
@@ -61,7 +67,7 @@ $.widget('bk.chordDatabase', {
 		width: 20
 	    });
 	}
-	var colTemplate = '{{#cols}}<div class="cell" code="{{&code}}" title="{{&title}}" style="width:{{&width}}px; float: left;">{{&label}}</div>{{/cols}}';
+	var colTemplate = '{{#cols}}<div class="cell" code="{{&code}}" title="{{&title}}" style="width:{{&width}}px;">{{&label}}</div>{{/cols}}';
 	var renderString = Mustache.render(colTemplate, view);
 	this.headerRow[0].innerHTML = renderString;
 	var self = this;
@@ -72,11 +78,10 @@ $.widget('bk.chordDatabase', {
 	    var numCols = view.cols.length;
 	    for (var i = 0; i < numCols; i++) {
 		var col = view.cols[i];
-		gridTemplate +='<div class="cell" code="' + col.code + '" title="' + col.title + '" style="width:' + col.width + 'px;">{{&' + col.code + '}}</div>';
+		gridTemplate +='<div class="cell" code="' + col.code + '" title="' + col.title + '" style="width:' + col.width + 'px;">{{&' + col.code + '}}&nbsp;</div>';
 	    }
 	    gridTemplate += '</div>{{/positions}}';
 	    renderString = Mustache.render(gridTemplate, view);
-	    console.log(renderString);
 	    self.body[0].innerHTML = renderString;
 
 	}, 0);
