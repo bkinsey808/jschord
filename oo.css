@@ -1,0 +1,96 @@
+.scaleFretboardTool {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  overflow: hidden;
+}
+
+.scaleTool {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  overflow: hidden;
+}
+
+.fretboardTool {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  border-top: 1px solid black;
+  overflow: hidden;
+}
+
+.scaleToolField {
+  position: absolute;
+  border-bottom: 1px solid black;
+  border-right: 1px solid black;
+  color: gray;
+}
+
+.stringFret {
+  position: absolute;
+  border-bottom: 1px solid black;
+  border-right: 1px solid black;
+  color: lightgray;
+}
+
+.scaleDegree0.scaleDegreeActive {
+    background-color: #FFCCCC;
+}
+.scaleDegree1.scaleDegreeActive {
+    background-color: #FFE0CC;
+}
+.scaleDegree2.scaleDegreeActive {
+    background-color: #FFEACC;
+}
+.scaleDegree3.scaleDegreeActive {
+    background-color: #FFF4CC;
+}
+.scaleDegree4.scaleDegreeActive {
+    background-color: #FFFECC;
+}
+.scaleDegree5.scaleDegreeActive {
+    background-color: #EFFAC8;
+}
+.scaleDegree6.scaleDegreeActive {
+    background-color: #C7F5C4;
+}
+.scaleDegree7.scaleDegreeActive {
+    background-color: #C4F0F4;
+}
+.scaleDegree8.scaleDegreeActive {
+    background-color: #C4DAF4;
+}
+.scaleDegree9.scaleDegreeActive {
+    background-color: #C9C4F4;
+}
+.scaleDegree10.scaleDegreeActive {
+    background-color: #E1C4F4;
+}
+.scaleDegree11.scaleDegreeActive {
+    background-color: #F6C6E6;
+}
+
+.scaleDegreeActive {
+  color: black;
+}
+
+.fieldHeader {
+  color: blue;
+}
+
+.chordScaleActive {
+  background-color: black !important;
+  color: white;
+}
+
+.cell {
+  float: left; 
+  border-right: 1px solid gray;
+  border-bottom: 1px solid gray;
+  white-space: nowrap;
+}

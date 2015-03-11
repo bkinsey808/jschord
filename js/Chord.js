@@ -2,12 +2,14 @@ var Chord = Class({
 
   include: AppMixin,
 
-  init: function(argument) {
+    init: function(argument) {
+      //console.log(argument);
     if (!(argument instanceof Array)) {
       argument = this.convertArgumentFromString(argument);
     }
-    this.valueArray = this.getUniqueArray(argument);
-    this.valueArray.sort(function(a,b){return a-b});
+	this.valueArray = this.getUniqueArray(argument);
+	this.valueArray.sort(function(a,b){return a-b});
+	//console.log(this.valueArray);
   },
 
   convertArgumentFromString: function(string) {
@@ -37,14 +39,15 @@ var Chord = Class({
   },
 
   getScaleString: function(primary) {
-    var string = this.getString();
-      var scale = new Scale(string, primary);
-    return scale.getString(primary);
+      var scale = new Scale(this.valueArray, primary);
+      return scale.getString(primary);
   },
 
     getScale: function(primary) {
-	var string = this.getString(primary);
-	var scale = new Scale(string);
+//	var string = this.getString(primary);
+//	console.log(string);
+//	console.log(this.valueArray);
+	var scale = new Scale(this.valueArray, primary);
 	return scale;
     },
 
@@ -61,6 +64,24 @@ var Chord = Class({
 	var scaleType = scale.getScaleType();
 	var scaleTypeString = scaleType.getString();
 	return scaleTypeString;
+    },
+
+    getScaleNoteString: function(primary) {
+	var string = this.getString(primary);
+	//console.log(string);
+	var scale = new Scale(string, primary);
+	var note = scale.getNote();
+	var noteString = note.getString();
+	return noteString;
+    },
+
+    getNoteString: function() {
+	var noteStrings = [];
+	for (var i = 0; i< this.valueArray.length; i++) {
+	    var note = new Note(this.valueArray[i]);
+	    noteStrings.push(note.getString());
+	}
+	return noteStrings.join(' ');
     },
 
     getNote: function() {

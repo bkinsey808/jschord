@@ -30,12 +30,16 @@ var Instrument = Class({
     return this.valueArray;
   },
 
-  getString: function() {
-    return this.scaleString;
+  getString: function(stringNum) {
+    return this.stringArray[stringNum];
   },
 
     getStringArray: function() {
 	return this.stringArray;
+    },
+
+    getNumStrings: function() {
+	return this.stringArray.length;
     },
 
     getMaxFret: function() {
@@ -59,19 +63,29 @@ var Instrument = Class({
 	return openNotes;
     },
 
-  getChordFromPosition: function(position) {
+    getChordFromPosition: function(position, primary) {
     var positionArray = position.split(' ');
-    var noteNumArray = [];
-    for (var i = 0; i < positionArray.length; i++) {
-      var fret = positionArray[i];
-      if (fret == 'x') continue;
-      var fretNum = parseInt(fret);
-      noteNumArray.push(this.valueArray[i][fretNum]);
-	
-    }
+      var noteNumArray = this.getNoteNumArrayFromPositionArray(positionArray, true);
     var chord = new Chord(noteNumArray);
     return chord;
   },
+
+    getNoteNumArrayFromPositionArray: function(positionArray, mod) {
+	var noteNumArray = [];
+	for (var i = 0; i < positionArray.length; i++) {
+	    var fret = positionArray[i];
+	    if (fret == 'x') continue;
+	    var fretNum = parseInt(fret);
+	    var noteNum = this.valueArray[i][fretNum];
+	    if (mod) {
+		//console.log('here: ' + noteNum);
+		noteNum = noteNum % 12;
+	    }
+	    noteNumArray.push(noteNum);
+	}
+	return noteNumArray;
+    },
+
 
 /*
 
@@ -89,16 +103,21 @@ mf: sf+mf sf sf sf
 1   4
 
 */
+    getNumStrings: function() {
+	return this.stringArray.length;
+    },
 
-    getPositionsAtFret: function(fretNum, maxFretSpan) {
+    getPositionsAtFret: function(fretNum, maxFretSpan, scale) {
 	var positions = [];
-	var numStrings = this.stringArray.length;
+	var numStrings = this.getNumStrings();
 	if (fretNum === 0) {
 	    var position = [];
 	    for (stringNum = 0; stringNum < numStrings; stringNum++) {
 		position.push(0);
 	    }
-	    positions.push(position.join(' '));
+	    if (this.positionInScale(position, scale)) {
+		positions.push(position.join(' '));
+	    }
 	    return positions;
 	}
 	maxPositionNum = Math.pow(maxFretSpan + 2, numStrings);
@@ -130,42 +149,75 @@ mf: sf+mf sf sf sf
 		}
 	    }
 	    var positionString = position.join(' ');
-	    if (atFretNum && nonMuteCount > 1 && !noPositionAtFret) {
-		positions.push(positionString);
+	    if (atFretNum && nonMuteCount > 1 && !noPositionAtFret && this.positionInScale(position, scale)) {
+//		positions.push(positionString);
+
+		var chord = this.getChordFromPosition(positionString);
+		var scaleString = chord.getScaleString(true);
+		var newScale = new Scale(scaleString);
+		var numNotes = newScale.getNumNotes();
+		var scaleTypeString = newScale.getScaleTypeString();
+		var scaleType = new ScaleType(scaleTypeString);
+		var scaleTypeName = scaleType.getNames();
+		var noteString = newScale.getNote().getString(true);
+
+		var positionData = { 
+		    numNotes: numNotes,
+		    position: positionString,
+		    note: noteString,
+		    scaleType: scaleTypeString,
+		    scaleTypeName: scaleTypeName
+		};
+		var numOpen = 0;
+		var numMuted = 0;
+		for (var s = 1; s <= numStrings; s++) {
+		    var positionAt = position[s - 1];
+		    positionData['s' + s] = positionAt;
+		    if (positionAt === 'x') {
+			numMuted++;
+		    }
+		    if (positionAt === 0) {
+			numOpen++;
+		    }
+		    positionData.numMuted = numMuted;
+		    positionData.numOpen = numOpen;
+		}
+		this.db.push(positionData);
 	    }
 	}
 	return positions;
     },
 
-    buildChordDatabase: function(maxFretSpan) {
-	console.log(this.lastFret);
-	this.chordsByPosition = {};
-	this.chordsByType = {};
-	for (i = 0; i <= this.lastFret; i++) {
-	    var positions = this.getPositionsAtFret(i, maxFretSpan);
-	    var numPositionsAtFret = positions.length;
-	    for (var j = 0; j < numPositionsAtFret; j++) {
-		var position = positions[j];
-		var chord = this.getChordFromPosition(position);
-		this.chordsByPosition[position] = chord;
-		var scale = chord.getScale(true);
-		var scaleTypeString = scale.getScaleTypeString();
-		var noteString = scale.getNote().getString(true);
-		if (position === '2 0 0 0') {
-		    console.log('found: ' + position);
-		    console.log(noteString);
-		}
-		if (!this.chordsByType[scaleTypeString]) {
-		    this.chordsByType[scaleTypeString] = {};
-		}
-		if (!this.chordsByType[scaleTypeString][noteString]) {
-		    this.chordsByType[scaleTypeString][noteString] = {};
-		}
-		this.chordsByType[scaleTypeString][noteString][position] = chord;
+    positionInScale: function(position, scale) {
+	if (!scale) {
+	    return true;
+	}
+	//console.log(arguments);
+	var scaleValueArray = scale.getValueArray(true);
+	var noteNumArray = this.getNoteNumArrayFromPositionArray(position);
+	for (var i = 0; i < noteNumArray.length; i++) {
+	    var noteNum = noteNumArray[i] % 12;
+	    //console.log(noteNum);
+	    var note = new Note(noteNum);
+	    if ($.inArray(noteNum, scaleValueArray) === -1) {
+		return false;
 	    }
 	}
-	return this.chordsByType;
+	return true;
     },
+
+    buildChordDatabase: function(maxFretSpan, masterScale) {
+	this.db = new Backbone.Collection();
+	this.db.comparator = function(item) {
+	    return [10000-parseInt(item.get('numNotes')), item.get('scaleTypeName'), item.get('note'), 100 - (parseInt(item.get('numOpen')) + 1)];
+	};
+	for (i = 0; i <= this.lastFret; i++) {
+	    this.getPositionsAtFret(i, maxFretSpan, masterScale);
+	}
+	this.db.sort();
+	return this.db;
+    },
+
 
 });
 

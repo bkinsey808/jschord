@@ -1,4 +1,22 @@
-var ukulele = new Instrument('G0,12 C0,12 E0,12 A0,12');
+$bk = {
+    redraw: function() {
+	console.log('bk redraw');
+	$('#scaleFretboardTool').scaleFretboardTool('redraw');	
+    }
+
+};
+
+$bk.scale = new Scale('C Maj');
+
+$(function() {
+    $('#scaleFretboardTool').scaleFretboardTool();
+});
+
+$(window).on('resize', function() {
+    $bk.redraw();
+})
+
+$bk.instrument = new Instrument('G0,19 C0,19 E0,19 A0,19');
 
 //var scaleType = new ScaleType();
 //console.log(scaleType.getScaleTypeData());
@@ -84,14 +102,15 @@ for (var i = 0; i < inversions.length; i++) {
 
 */
 
-var scale = new Scale("C D E F G A B");
+var scale = new Scale("C Scri");
 var ukulele = new Instrument('G0,12 C0,12 E0,12 A0,12');
 
-var chordsByPosition = ukulele.buildChordDatabase(5);
-console.log(chordsByPosition);
+//var chordsByPosition = ukulele.buildChordDatabase(5);
+//console.log(chordsByPosition);
 
-//var chord = ukulele.getChordFromPosition('1 x 4 x');
+//var chord = ukulele.getChordFromPosition('0 0 5 3');
 //console.log(chord.getString(true));
+//console.log(chord.getNoteString());
 
 
 //var scale = new Scale("Bb PU", true);
@@ -108,12 +127,14 @@ for (var i = 0; i < positions.length; i++) {
 console.log(definedPositions);
 */
 
-//var scale = new Scale("G C E A");
-//scale.getPositionsFromInstrument(ukulele);
-
+//var scale = new Scale("C Scri");
+//
 //var chord = new Chord(ukulele.getChordFromPosition('2 2 2 0').getString());
 //console.log(chord.getString());
 //var scaleChord = new ScaleChord(chord, scale);
 //console.log(scaleChord.getString());
 
 //console.log(scale.getChildrenOfSize(3, true, true));
+
+//var chord = ukulele.getChordFromPosition('0 0 0 0');
+//console.log(chord.getScaleString(true));

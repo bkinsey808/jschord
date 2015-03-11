@@ -22,6 +22,10 @@ var String = Class({
 	return this.note;
     },
 
+    getStartFret: function() {
+	return this.startFret;
+    },
+
     getMaxFret: function() {
 	return this.lastFret;
     },

@@ -35,12 +35,12 @@ var ScaleType = Class({
 	}
 	this.valueArray = this.valueArray.map(mapFunction);     
 	this.valueArray = this.getUniqueArray(this.valueArray);
-	this.valueArray.sort(function(a,b){return a-b});
+//	this.valueArray.sort(function(a,b){return a-b});
 	var firstValue = this.valueArray[0];
 	if (this.valueArray.length > 0 && firstValue > 0) {
 	    var diff = firstValue;
 	    for (var i = 0; i < this.valueArray.length; i++) {
-		this.valueArray[i] -= diff;
+		this.valueArray[i] = (12 + this.valueArray[i] - diff)%12;
 	    }
 	}
     },
@@ -121,12 +121,12 @@ var ScaleType = Class({
 	    console.log('no array');
 	    return;
 	}
-    for (var n = 0; n < this.valueArray.length; n++) {
-      var inversionScaleType = new ScaleType(this.getNthInversion(n, this.valueArray));
-      console.log(n 
-        + ": (" + inversionScaleType.getString() + ') ' 
-        + inversionScaleType.getScaleDegreeTypeString());
-    }
+	for (var n = 0; n < this.valueArray.length; n++) {
+	    var inversionScaleType = new ScaleType(this.getNthInversion(n, this.valueArray));
+	    console.log(n 
+			+ ": (" + inversionScaleType.getString() + ') ' 
+			+ inversionScaleType.getScaleDegreeTypeString());
+	}
       
   },
 
@@ -160,7 +160,7 @@ var ScaleType = Class({
     if (array.length > 0 && array[0] > 0) {
       var diff = array[0];
       for (var i = 0; i < array.length; i++) {
-        array[i] -= diff;
+          array[i] = (12 + array[i] - diff) % 12;
       }
     }
     return array;
@@ -208,6 +208,23 @@ var ScaleType = Class({
     getScales: function() {
     },
 
+    addScaleDegreeValue: function(scaleDegreeValue) {
+	this.valueArray.push(scaleDegreeValue);
+	this.valueArray = this.getUniqueArray(this.valueArray);
+	this.valueArray.sort(function(a,b){return a-b});
+    },
+
+    removeScaleDegreeValue: function(scaleDegreeValue) {
+	for (var i = this.valueArray.length - 1; i >= 0; i--) {
+	    if (this.valueArray[i] === scaleDegreeValue) {
+		this.valueArray.splice(i, 1);
+	    }
+	}
+	this.valueArray = this.getUniqueArray(this.valueArray);
+	this.valueArray.sort(function(a,b){return a-b});
+    },
+
+
     getScaleTypeData: function() {
 	var data = {};
         for (var key in this.scaleTypeData) {
@@ -220,6 +237,13 @@ var ScaleType = Class({
 	    data[key].modes = scaleType.getModes();
 	}
 	return data;
+    },
+
+    getNames: function() {
+	
+	if (this.scaleTypeData[this.getString()]) {
+	    return this.scaleTypeData[this.getString()].names[0];
+	}
     },
 
   scaleTypeData : {
